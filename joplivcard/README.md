@@ -1,7 +1,7 @@
 # JopliVCard.py
 Sync your contacts with Joplin.
 
-Looks for notes' dates and build a VCard file from it.
+Build a VCard file from contact information stored in notes.
 ## Usage
 Install requirements:
 ```bash
@@ -39,6 +39,7 @@ All the variables which this script asks for (JOPLIN\_TOKEN) can be set from env
 * JOPLIN\_TOKEN (**required**): the key to the Joplin Web Clipper API, see Joplin Options
 * JOPLIN\_HOST (optionnal, default: localhost)
 * JOPLIN\_PORT (optionnal, default: 41184)
+* NOTES\_TAG (optionnal, default: contact): only process notes with this tag
 * WAIT\_TIME (optionnal, default: 60): how long to wait between two runs
 
 ## Serving the VCard file
