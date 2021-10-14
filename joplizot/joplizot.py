@@ -23,9 +23,12 @@ ENV = {
     "ZOTERO_COLLECTION_ID": "",
     "NOTES_TAG": "zotero",
     "WAIT_TIME": "60",
+    "MODE": "include_notes",
 }
 
 year_regex = re.compile("[0-9]{4}")
+
+MODE = ENV["MODE"].replace(" ", "").split(",")
 
 
 def format_str(raw):
@@ -112,11 +115,13 @@ while True:
 
                 list_of_children_notes = []
                 for child in zot.children(item["key"]):
-                    if child["data"]["itemType"] == "note":  # only notes for now
+                    if (
+                        "include_notes" in MODE and child["data"]["itemType"] == "note"
+                    ):  # only notes for now
                         # title_child = format_str(child["data"]["title"]) + ' (' + title + ')'  # the title for our note
                         title_child = (
-                            format_str(child["data"]["itemType"]) + " (" + title + ")"
-                        )  # the title for our note
+                            "Note " + child["key"] + " (" + title + ")"
+                        )  # the title for our child note
                         click.echo("\tAdding/updating item: " + title)
                         note_child = zot_notebook.get_note_by_title(
                             title_child,
