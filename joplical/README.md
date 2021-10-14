@@ -28,7 +28,7 @@ or with docker-compose (recommended):
 
 ```yaml
 services:
-  joplimap:
+  joplical:
     build: https://github.com/S73ph4n/joplin-integrations\#:joplical
     environment:
       - JOPLIN_TOKEN=myJoplinToken1a2b3c...
@@ -53,7 +53,7 @@ WARNING: This is provided as a simple example of how to serve the file with Ngin
 
 ```yaml
 services:
-  joplimap:
+  joplical:
     build: https://github.com/S73ph4n/joplin-integrations\#:joplical
     environment:
       - JOPLIN_TOKEN=myJoplinToken1a2b3c...

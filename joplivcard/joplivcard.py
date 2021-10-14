@@ -1,9 +1,9 @@
-"""JoplICAL : sync an ICalendar with your notes."""
+"""JopliVCard : sync your contacts with your notes."""
 import os
 import time
 import click
 import re
-from icalendar import Calendar, Event
+import vobject
 import python_joplin
 from python_joplin import tools
 from datetime import datetime, timedelta
@@ -17,20 +17,7 @@ LOOP = True
 # Environment variables we need:
 ENV = {"JOPLIN_TOKEN": "", "JOPLIN_HOST":"localhost", "JOPLIN_PORT":"41184", "WAIT_TIME":"60", "NOTES_TAG":""}
 
-# Date format (ISO only for now)
-date_regex = re.compile('[0-9]{4}\-[0-9]{2}\-[0-9]{2} [0-9]{2}\:[0-9]{2}') #matches dates
-date_format = "%Y-%m-%d %H:%M" #for datetime.strptime
-
-def get_dates(note):
-    """Extract all dates related to a note.
-    Returns a list of datetime."""
-    dates = []
-    if note.todo_due != 0: #if it has a due date:
-        dates.append(tools.format_date(note.todo_due))
-    dates_in_body = date_regex.findall(note.body)
-    for d_i_b in dates_in_body: #if it has a date in the body of the note:
-        dates.append(datetime.strptime(d_i_b, date_format))
-    return(dates)
+vcards = ''
 
 # In case the environment variables are not set, let's set them :
 for VAR_NAME in ENV.keys():
@@ -51,9 +38,7 @@ while True:
         notes = jop.get_notes() #Get the notes
         click.echo('Notes fetched.')
 
-        #Prepare calendar:
-        cal = Calendar()
-        cal['summary'] = 'Joplin Calendar'
+        #Prepare VObject:
 
         # Process the notes:
         for note in notes:
@@ -62,23 +47,32 @@ while True:
             if not CONFIRM or click.confirm(
                 "Add note " + note.title + " ?", default=False
             ):
-                for note_date in get_dates(note):
-                    event = Event()
-                    event.add('summary', note.title)
-                    event.add('description', note.body)
-                    #TODO : add Joplin share link
-                    event.add('dtstart', note_date)
-                    duration = tools.get_yaml(note, 'duration')
-                    if duration :
-                        event.add('duration', timedelta(hours=float(duration))) 
-                    else :
-                        event.add('duration', timedelta(hours=1)) #Lasts 1 hour
-                    #TODO : get YAML properties
-                    cal.add_component(event)
+                j = vobject.vCard()
 
-        # Saving calendar:
-        f = open('/data/joplin_cal.ics', 'wb')
-        f.write(cal.to_ical())
+                #j.add('n')
+                #j.n.value = vobject.vcard.Name( family='Harris', given='Jeffrey' )
+                j.add('fn')
+                j.fn.value = note.title
+
+                j.add('categories')
+                j.categories.value = 'joplin'
+
+                tel = tools.get_yaml(note, 'tel')
+                if tel:
+                    j.add('tel')
+                    j.tel.value = tel
+
+                email = tools.get_yaml(note, 'email')
+                if email:
+                    j.add('email')
+                    j.email.value = email
+                    j.email.type_param = 'INTERNET'
+
+                vcards += j.serialize()
+
+        # Saving vcard:
+        f = open('/data/joplin_vcards.vcf', 'w')
+        f.write(vcards)
         f.close()
 
     except Exception:
