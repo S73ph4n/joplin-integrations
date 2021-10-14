@@ -7,13 +7,15 @@ from icalendar import Calendar, Event
 import python_joplin
 from python_joplin import tools
 from datetime import datetime, timedelta
+import logging
+
+logger = logging.getLogger('jop_logger')
 
 CONFIRM = False  # ask before creating each note/ressource
 LOOP = True
-WAIT_TIME = 60  # wait 60 seconds between each runs
 
 # Environment variables we need:
-ENV = {"JOPLIN_TOKEN": ""}
+ENV = {"JOPLIN_TOKEN": "", "JOPLIN_HOST":"localhost", "JOPLIN_PORT":"41184", "WAIT_TIME":"60"}
 
 # Date format (ISO only for now)
 date_regex = re.compile('[0-9]{4}\-[0-9]{2}\-[0-9]{2} [0-9]{2}\:[0-9]{2}') #matches dates
@@ -32,47 +34,52 @@ def get_dates(note):
 
 # In case the environment variables are not set, let's set them :
 for VAR_NAME in ENV.keys():
-    ENV[VAR_NAME] = os.getenv(VAR_NAME)
-    if not ENV[VAR_NAME]:
-        ENV[VAR_NAME] = click.prompt("Enter your " + VAR_NAME, type=str)
+    if not os.getenv(VAR_NAME):
+        if CONFIRM:
+            ENV[VAR_NAME] = click.prompt("Enter your " + VAR_NAME, type=str, default=ENV[VAR_NAME])
     else:
+        ENV[VAR_NAME] = os.getenv(VAR_NAME)
         click.echo(VAR_NAME + " found in the environment.")
 
 while True:
-    # Prepare Joplin:
-    click.echo("Connecting to Joplin...")
-    jop = python_joplin.Joplin(ENV["JOPLIN_TOKEN"])  # Connect to the Joplin API
-    click.echo("Joplin connection OK")
-    click.echo('Fetching notes...')
-    notes = jop.get_notes() #Get the notes
-    click.echo('Notes fetched.')
+    try:
+        # Prepare Joplin:
+        click.echo("Connecting to Joplin...")
+        jop = python_joplin.Joplin(ENV["JOPLIN_TOKEN"], host=ENV["JOPLIN_HOST"], port=int(ENV["JOPLIN_PORT"]))  # Connect to the Joplin API
+        click.echo("Joplin connection OK")
+        click.echo('Fetching notes...')
+        notes = jop.get_notes() #Get the notes
+        click.echo('Notes fetched.')
 
-    #Prepare calendar:
-    cal = Calendar()
-    cal['summary'] = 'Joplin Calendar'
+        #Prepare calendar:
+        cal = Calendar()
+        cal['summary'] = 'Joplin Calendar'
 
-    # Process the notes:
-    for note in notes:
-        
-        if not CONFIRM or click.confirm(
-            "Add note " + note.title + " ?", default=False
-        ):
-            for note_date in get_dates(note):
-                event = Event()
-                event.add('summary', note.title)
-                event.add('description', note.body)
-                #TODO : add Joplin share link
-                event.add('dtstart', note_date)
-                event.add('duration', timedelta(hours=1)) #Lasts 1 hour
-                #TODO : get YAML properties
-                cal.add_component(event)
+        # Process the notes:
+        for note in notes:
+            
+            if not CONFIRM or click.confirm(
+                "Add note " + note.title + " ?", default=False
+            ):
+                for note_date in get_dates(note):
+                    event = Event()
+                    event.add('summary', note.title)
+                    event.add('description', note.body)
+                    #TODO : add Joplin share link
+                    event.add('dtstart', note_date)
+                    event.add('duration', timedelta(hours=1)) #Lasts 1 hour
+                    #TODO : get YAML properties
+                    cal.add_component(event)
 
-    # Saving calendar:
-    f = open('/data/joplin_cal.ics', 'wb')
-    f.write(cal.to_ical())
-    f.close()
+        # Saving calendar:
+        f = open('/data/joplin_cal.ics', 'wb')
+        f.write(cal.to_ical())
+        f.close()
+
+    except Exception:
+        logger.exception("Fatal error in main loop")
 
     if not LOOP:
         break
-    click.echo("Done. Waiting " + str(WAIT_TIME) + " secs before next run...")
-    time.sleep(WAIT_TIME)
+    click.echo("Done. Waiting " + str(ENV["WAIT_TIME"]) + " secs before next run...")
+    time.sleep(int(ENV["WAIT_TIME"]))

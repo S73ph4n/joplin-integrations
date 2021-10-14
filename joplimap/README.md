@@ -34,3 +34,13 @@ services:
 
 ## Configuration
 All the variables which this script asks for (JOPLIN\_TOKEN, IMAP\_HOST, etc.) can be set from environment variables.
+
+### Options
+* JOPLIN\_TOKEN (**required**): the key to the Joplin Web Clipper API, see Joplin Options
+* JOPLIN\_HOST (optionnal, default: localhost)
+* JOPLIN\_PORT (optionnal, default: 41184)
+* NOTES\_TAG (optionnal, default: email): the tag to apply to the notes
+* IMAP\_SERVER (**required**)
+* IMAP\_USER (**required**)
+* IMAP\_PASSWORD (**required**)
+* WAIT\_TIME (optionnal, default: 60): how long to wait between two runs

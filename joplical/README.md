@@ -40,6 +40,12 @@ services:
 ## Configuration
 All the variables which this script asks for (JOPLIN\_TOKEN) can be set from environment variables.
 
+### Options
+* JOPLIN\_TOKEN (**required**): the key to the Joplin Web Clipper API, see Joplin Options
+* JOPLIN\_HOST (optionnal, default: localhost)
+* JOPLIN\_PORT (optionnal, default: 41184)
+* WAIT\_TIME (optionnal, default: 60): how long to wait between two runs
+
 ## Serving the ICS file
 This tool produces a .ics calendar file and keeps it up-to-date. To synchronize it to your devices, you might want to run a webserver, such as nginx:
 
