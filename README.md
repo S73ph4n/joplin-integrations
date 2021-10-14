@@ -5,7 +5,7 @@ Here are a few tools I use to integrate [Joplin](https://joplinapp.org/) with va
 They come without any warranties.
 
 Currently, there is:
-* JoplIMAP : pulls unread email from an IMAP server into a Joplin notebook
+* JoplIMAP : pulls email from an IMAP server into a Joplin notebook
 * JoplICal : makes a calendar from your notes and keeps it up-to-date
 * JopliZot : pulls items from a Zotero library into a Joplin notebook
 
@@ -23,7 +23,7 @@ I personnally use docker-compose with the following ```docker-compose.yml``` fil
 ```docker-compose
 services:
   joplimap:
-    build: https://github.com/S73ph4n/python_joplin.git#:tools/joplimap
+    build: https://github.com/S73ph4n/joplin-integrations.git#:joplimap
     environment:
       - JOPLIN_TOKEN=
       - IMAP_SERVER=
@@ -31,7 +31,7 @@ services:
       - IMAP_PASSWORD=
     network_mode: host
   joplizot:
-    build: src/python_joplin/tools/joplizot
+    build: https://github.com/S73ph4n/joplin-integrations.git#:joplizot
     environment:
       - JOPLIN_TOKEN=
       - ZOTERO_LIBRARY_ID=
@@ -39,7 +39,7 @@ services:
       - ZOTERO_COLLECTION_ID=[optionnal]
     network_mode: host
   joplical:
-    build: src/python_joplin/tools/joplical
+    build: https://github.com/S73ph4n/joplin-integrations.git#:joplical
     environment:
       - JOPLIN_TOKEN=
     volumes:
