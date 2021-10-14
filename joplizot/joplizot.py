@@ -46,6 +46,7 @@ while True:
         # Prepare PyZotero:
         click.echo("Connecting to Zotero server...")
         zot = zotero.Zotero(ENV["ZOTERO_LIBRARY_ID"], "user", ENV["ZOTERO_API_KEY"])
+        #print(zot.item_types())
         click.echo("Zotero connection OK.\nFetching items...")
         if ENV["ZOTERO_COLLECTION_ID"]:
             items = zot.everything(zot.collection_items_top(ENV["ZOTERO_COLLECTION_ID"])) #Get items from the collection
@@ -81,9 +82,28 @@ while True:
                     "Link",
                     "[See on Zotero Web](" + item["links"]["alternate"]["href"] + ")",
                 )
+                
+                list_of_children_notes = []
+                for child in zot.children(item["key"]):
+                   if child["data"]["itemType"]=="note": #only notes for now
+                        #title_child = format_str(child["data"]["title"]) + ' (' + title + ')'  # the title for our note
+                        title_child = format_str(child["data"]["itemType"]) + ' (' + title + ')'  # the title for our note
+                        click.echo("\tAdding/updating item: " + title)
+                        note_child = zot_notebook.get_note_by_title(title_child, create_if_needed=True, allow_external_results=True)  # Create note in notebook (or find it if it exists, even in another notebook)
+                        if note_child.body != '': click.echo("\tNote exists. Updating...")
+                        else : click.echo("\tNote does not exists. Creating...")
+                        tools.set_yaml(note_child, "From", "["+title+"](:/" + note.id + ")") #Link to the parent item
+                        for prop_name in child["data"].keys():
+                            tools.set_yaml(note_child, prop_name, child["data"][prop_name])
+                        note_child.source = "Zotero via JopliZot"
+                        note_child.add_tag_by_title(ENV["NOTES_TAG"], create_if_needed=True)
+                        note_child.push()  # Push updates to Joplin
+                        list_of_children_notes.append("["+title_child+"](:/" + note_child.id + ")") #backlink
+
+                tools.set_yaml(note, 'Children items', list_of_children_notes)
+
                 for prop_name in item["data"].keys():
                     tools.set_yaml(note, prop_name, item["data"][prop_name])
-
 
                 # TODO : add attachments
                 # for att in msg.attachments:

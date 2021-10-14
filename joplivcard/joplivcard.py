@@ -15,7 +15,7 @@ CONFIRM = False  # ask before creating each note/ressource
 LOOP = True
 
 # Environment variables we need:
-ENV = {"JOPLIN_TOKEN": "", "JOPLIN_HOST":"localhost", "JOPLIN_PORT":"41184", "WAIT_TIME":"60", "NOTES_TAG":""}
+ENV = {"JOPLIN_TOKEN": "", "JOPLIN_HOST":"localhost", "JOPLIN_PORT":"41184", "WAIT_TIME":"60", "NOTES_TAG":"contact"}
 
 vcards = ''
 
@@ -35,15 +35,15 @@ while True:
         jop = python_joplin.Joplin(ENV["JOPLIN_TOKEN"], host=ENV["JOPLIN_HOST"], port=int(ENV["JOPLIN_PORT"]))  # Connect to the Joplin API
         click.echo("Joplin connection OK")
         click.echo('Fetching notes...')
-        notes = jop.get_notes() #Get the notes
+        if ENV["NOTES_TAG"] != "":
+            tag = jop.get_tag_by_title(ENV["NOTES_TAG"])
+            notes = tag.get_notes() #Get only the notes tagged
+        else:
+            notes = jop.get_notes() #Get all the notes
         click.echo('Notes fetched.')
-
-        #Prepare VObject:
 
         # Process the notes:
         for note in notes:
-            if ENV["NOTES_TAG"] != "" and not ENV["NOTES_TAG"] in [t.title for t in note.tags]:
-                break
             if not CONFIRM or click.confirm(
                 "Add note " + note.title + " ?", default=False
             ):
@@ -54,8 +54,13 @@ while True:
                 j.add('fn')
                 j.fn.value = note.title
 
+                categories = [t.title for t in note.tags].remove(ENV["NOTES_TAG"])
+                categories.append('Joplin')
                 j.add('categories')
-                j.categories.value = 'joplin'
+                j.categories.value = categories
+
+                j.add('note')
+                j.note.value = note.body #TODO : de-markdown-ify
 
                 tel = tools.get_yaml(note, 'tel')
                 if tel:

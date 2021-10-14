@@ -48,7 +48,11 @@ while True:
         jop = python_joplin.Joplin(ENV["JOPLIN_TOKEN"], host=ENV["JOPLIN_HOST"], port=int(ENV["JOPLIN_PORT"]))  # Connect to the Joplin API
         click.echo("Joplin connection OK")
         click.echo('Fetching notes...')
-        notes = jop.get_notes() #Get the notes
+        if ENV["NOTES_TAG"] != "":
+            tag = jop.get_tag_by_title(ENV["NOTES_TAG"])
+            notes = tag.get_notes() #Get only the notes tagged
+        else:
+            notes = jop.get_notes() #Get all the notes
         click.echo('Notes fetched.')
 
         #Prepare calendar:
@@ -57,8 +61,6 @@ while True:
 
         # Process the notes:
         for note in notes:
-            if ENV["NOTES_TAG"] != "" and not ENV["NOTES_TAG"] in [t.title for t in note.tags]:
-                break
             if not CONFIRM or click.confirm(
                 "Add note " + note.title + " ?", default=False
             ):

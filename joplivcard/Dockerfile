@@ -1,4 +1,4 @@
-FROM python:3.6
+FROM python:3.7
 
 # Create app directory
 WORKDIR /app
@@ -13,4 +13,4 @@ RUN mkdir /data
 # Bundle app source
 COPY . /app
 
-CMD [ "python", "joplical.py" ]
+CMD [ "python", "joplivcard.py" ]
