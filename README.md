@@ -30,6 +30,7 @@ services:
       - IMAP_USER=
       - IMAP_PASSWORD=
     network_mode: host
+    restart: unless-stopped
   joplizot:
     build: https://github.com/S73ph4n/joplin-integrations.git#:joplizot
     environment:
@@ -38,6 +39,7 @@ services:
       - ZOTERO_API_KEY=
       - ZOTERO_COLLECTION_ID=[optionnal]
     network_mode: host
+    restart: unless-stopped
   joplical:
     build: https://github.com/S73ph4n/joplin-integrations.git#:joplical
     environment:
@@ -45,6 +47,7 @@ services:
     volumes:
       - ./appdata/joplical:/data
     network_mode: host
+    restart: unless-stopped
 ```
 
 

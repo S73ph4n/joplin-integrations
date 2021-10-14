@@ -29,6 +29,7 @@ services:
       - ZOTERO_LIBRARY_ID=1234567
       - ZOTERO_API_KEY=myZotApiKey1a2b3c...
     network_mode: host
+    restart: unless-stopped
 ```
 
 ## Configuration

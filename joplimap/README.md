@@ -30,6 +30,7 @@ services:
       - IMAP_USER=testuser
       - IMAP_PASSWORD=testpassword
     network_mode: host
+    restart: unless-stopped
 ```
 
 ## Configuration

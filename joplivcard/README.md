@@ -30,6 +30,7 @@ services:
     volumes:
       - ./joplivcard_files:/data
     network_mode: host
+    restart: unless-stopped
 ```
 
 ## Configuration

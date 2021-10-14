@@ -35,6 +35,7 @@ services:
     volumes:
       - ./joplical_files:/data
     network_mode: host
+    restart: unless-stopped
 ```
 
 ## Configuration
