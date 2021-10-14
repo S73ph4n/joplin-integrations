@@ -1,4 +1,4 @@
-# Integration Tools for Joplin
+# JoplIntegrate with a few things
 
 Here are a few tools I use to integrate [Joplin](https://joplinapp.org/) with various other tools. They rely on my custom [Python Joplin library](https://github.com/S73ph4n/python_joplin).
 
